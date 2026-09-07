@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>NestKey — Smart PG/Hostel Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<div class="app">
+
+  <!-- ======================= SPLASH ======================= -->
+  <section id="screen-splash" class="screen active splash">
+    <div class="splash-inner">
+      <div class="logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="72" height="72">
+          <rect x="4" y="26" width="56" height="34" rx="6" fill="var(--sky-500)"/>
+          <path d="M32 6 L60 26 L4 26 Z" fill="var(--sky-700)"/>
+          <rect x="27" y="38" width="10" height="22" rx="2" fill="#ffffff"/>
+          <circle cx="46" cy="40" r="3" fill="#ffffff"/>
+          <circle cx="18" cy="40" r="3" fill="#ffffff"/>
+        </svg>
+      </div>
+      <h1 class="brand">NestKey</h1>
+      <p class="tagline">One key for rent, rooms &amp; records</p>
+      <button class="btn btn-primary btn-wide" id="btn-get-started">Get started</button>
+    </div>
+  </section>
+
+  <!-- ======================= ROLE SELECT ======================= -->
+  <section id="screen-role" class="screen">
+    <header class="topbar">
+      <h2>Continue as</h2>
+      <p class="subtle">Choose how you'll use NestKey</p>
+    </header>
+    <div class="stack">
+      <button class="role-card" data-role="resident">
+        <span class="role-icon">🏠</span>
+        <span class="role-text">
+          <strong>Resident</strong>
+          <small>Book a room, pay rent, raise complaints</small>
+        </span>
+        <span class="chev">›</span>
+      </button>
+      <button class="role-card" data-role="owner">
+        <span class="role-icon">🗝️</span>
+        <span class="role-text">
+          <strong>PG / Hostel Owner</strong>
+          <small>Manage residents, rooms &amp; documents</small>
+        </span>
+        <span class="chev">›</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ======================= RESIDENT AUTH ======================= -->
+  <section id="screen-resident-auth" class="screen">
+    <header class="topbar">
+      <button class="btn-back" data-back>‹</button>
+      <h2>Resident</h2>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="resident-login">Log in</button>
+      <button class="tab" data-tab="resident-signup">Sign up</button>
+    </div>
+
+    <!-- Resident Login -->
+    <form id="form-resident-login" class="tab-panel active" data-panel="resident-login">
+      <label class="field">
+        <span>Phone number</span>
+        <input type="tel" name="phone" placeholder="10-digit mobile number" required maxlength="10" inputmode="numeric">
+        <small class="err" data-err="phone"></small>
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input type="password" name="password" placeholder="Enter password" required minlength="4">
+      </label>
+      <button type="submit" class="btn btn-primary btn-wide">Log in</button>
+      <p class="hint">Demo account: <b>9876543210</b> / <b>pass123</b></p>
+    </form>
+
+    <!-- Resident Signup -->
+    <form id="form-resident-signup" class="tab-panel" data-panel="resident-signup" novalidate>
+      <h3 class="section-title">Personal details</h3>
+      <label class="field">
+        <span>Full name</span>
+        <input type="text" name="name" placeholder="As per Aadhaar card" required>
+        <small class="err" data-err="name"></small>
+      </label>
+      <label class="field">
+        <span>Father's name</span>
+        <input type="text" name="fatherName" placeholder="Father's full name" required>
+        <small class="err" data-err="fatherName"></small>
+      </label>
+      <label class="field">
+        <span>Phone number</span>
+        <input type="tel" name="phone" placeholder="10-digit mobile number" required maxlength="10" inputmode="numeric">
+        <small class="err" data-err="phone"></small>
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input type="password" name="password" placeholder="Minimum 6 characters" required minlength="6">
+        <small class="err" data-err="password"></small>
+      </label>
+
+      <h3 class="section-title">Identity verification</h3>
+      <label class="field">
+        <span>Aadhaar number</span>
+        <input type="text" name="aadhaar" placeholder="12-digit Aadhaar number" required maxlength="12" inputmode="numeric">
+        <small class="err" data-err="aadhaar"></small>
+        <small class="hint" id="aadhaar-sample"></small>
+      </label>
+
+      <div class="upload-row">
+        <label class="upload-box" for="upload-aadhaar">
+          <input type="file" id="upload-aadhaar" name="aadhaarFile" accept="image/*,application/pdf" hidden>
+          <span class="upload-icon">📄</span>
+          <span class="upload-label">Upload Aadhaar card</span>
+          <span class="upload-status" data-status="aadhaarFile">JPG, PNG or PDF · under 5 MB</span>
+        </label>
+        <label class="upload-box" for="upload-photo">
+          <input type="file" id="upload-photo" name="photoFile" accept="image/*" hidden>
+          <span class="upload-icon">🪪</span>
+          <span class="upload-label">Upload passport photo</span>
+          <span class="upload-status" data-status="photoFile">Clear, front-facing photo</span>
+        </label>
+      </div>
+      <div class="verify-panel" id="resident-verify-panel" hidden>
+        <div class="verify-row" data-check="name"></div>
+        <div class="verify-row" data-check="fatherName"></div>
+        <div class="verify-row" data-check="phone"></div>
+        <div class="verify-row" data-check="aadhaar"></div>
+        <div class="verify-row" data-check="aadhaarFile"></div>
+        <div class="verify-row" data-check="photoFile"></div>
+      </div>
+
+      <h3 class="section-title">Room booking</h3>
+      <label class="field">
+        <span>Sharing type</span>
+        <select name="sharing" required>
+          <option value="">Select sharing type</option>
+          <option value="single">Single occupancy</option>
+          <option value="double">Double sharing</option>
+          <option value="triple">Triple sharing</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Preferred move-in date</span>
+        <input type="date" name="moveIn" required>
+      </label>
+
+      <button type="submit" class="btn btn-primary btn-wide">Verify &amp; create account</button>
+    </form>
+  </section>
+
+  <!-- ======================= OWNER AUTH ======================= -->
+  <section id="screen-owner-auth" class="screen">
+    <header class="topbar">
+      <button class="btn-back" data-back>‹</button>
+      <h2>PG / Hostel Owner</h2>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="owner-login">Log in</button>
+      <button class="tab" data-tab="owner-signup">Sign up</button>
+    </div>
+
+    <form id="form-owner-login" class="tab-panel active" data-panel="owner-login">
+      <label class="field">
+        <span>Phone number</span>
+        <input type="tel" name="phone" placeholder="10-digit mobile number" required maxlength="10" inputmode="numeric">
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input type="password" name="password" placeholder="Enter password" required minlength="4">
+      </label>
+      <button type="submit" class="btn btn-primary btn-wide">Log in</button>
+      <p class="hint">Demo account: <b>9000000001</b> / <b>owner123</b></p>
+    </form>
+
+    <form id="form-owner-signup" class="tab-panel" data-panel="owner-signup" novalidate>
+      <label class="field">
+        <span>Owner name</span>
+        <input type="text" name="name" placeholder="Full name" required>
+        <small class="err" data-err="name"></small>
+      </label>
+      <label class="field">
+        <span>Father's name</span>
+        <input type="text" name="fatherName" placeholder="Father's full name" required>
+        <small class="err" data-err="fatherName"></small>
+      </label>
+      <label class="field">
+        <span>Phone number</span>
+        <input type="tel" name="phone" placeholder="10-digit mobile number" required maxlength="10" inputmode="numeric">
+        <small class="err" data-err="phone"></small>
+      </label>
+      <label class="field">
+        <span>PG / Hostel name</span>
+        <input type="text" name="pgName" placeholder="e.g. Sunrise PG for Gents" required>
+      </label>
+      <label class="field">
+        <span>Location</span>
+        <input type="text" name="location" placeholder="Area, city" required>
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input type="password" name="password" placeholder="Minimum 6 characters" required minlength="6">
+        <small class="err" data-err="password"></small>
+      </label>
+      <button type="submit" class="btn btn-primary btn-wide">Create owner account</button>
+    </form>
+  </section>
+
+  <!-- ======================= RESIDENT DASHBOARD ======================= -->
+  <section id="screen-resident-home" class="screen">
+    <header class="dash-header">
+      <div>
+        <p class="greet">Welcome back,</p>
+        <h2 id="resident-name-label">Resident</h2>
+      </div>
+      <button class="icon-btn" id="btn-resident-logout" title="Log out">⏻</button>
+    </header>
+
+    <div class="status-strip" id="resident-status-strip"></div>
+
+    <div class="grid-4">
+      <button class="dash-card" data-goto="resident-rent">
+        <span class="dash-icon" style="background:var(--sky-100)">💳</span>
+        <span>Rent Details</span>
+      </button>
+      <button class="dash-card" data-goto="resident-attendance">
+        <span class="dash-icon" style="background:var(--sky-100)">🗓️</span>
+        <span>Attendance</span>
+      </button>
+      <button class="dash-card" data-goto="resident-owner">
+        <span class="dash-icon" style="background:var(--sky-100)">🧑‍💼</span>
+        <span>Owner Details</span>
+      </button>
+      <button class="dash-card" data-goto="resident-complaints">
+        <span class="dash-icon" style="background:var(--sky-100)">📢</span>
+        <span>Complaints</span>
+      </button>
+    </div>
+
+    <button class="wide-card" data-goto="resident-booking">
+      <span class="wide-icon">🛏️</span>
+      <span class="wide-text">
+        <strong>Room Booking</strong>
+        <small>View or update your room booking request</small>
+      </span>
+      <span class="chev">›</span>
+    </button>
+  </section>
+
+  <!-- Resident: Rent Details -->
+  <section id="screen-resident-rent" class="screen sub">
+    <header class="topbar"><button class="btn-back" data-back>‹</button><h2>Rent Details</h2></header>
+    <div class="card rent-card">
+      <p class="subtle">Room 204 · Double sharing</p>
+      <div class="rent-amount">₹8,500 <span class="rent-due">due 5 Sep</span></div>
+      <div class="pill pill-warning" id="rent-status-pill">Payment pending</div>
+      <button class="btn btn-primary btn-wide" id="btn-pay-rent">Pay now</button>
+    </div>
+    <h3 class="section-title">Payment history</h3>
+    <ul class="list" id="rent-history"></ul>
+  </section>
+
+  <!-- Resident: Attendance -->
+  <section id="screen-resident-attendance" class="screen sub">
+    <header class="topbar"><button class="btn-back" data-back>‹</button><h2>Attendance</h2></header>
+    <div class="card">
+      <div class="attendance-ring-wrap">
+        <div class="ring" id="attendance-ring"><span id="attendance-pct">92%</span></div>
+        <div>
+          <strong>This month</strong>
+          <p class="subtle">28 of 30 days present</p>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-wide" id="btn-mark-attendance">Mark today present</button>
+    </div>
+    <h3 class="section-title">Recent record</h3>
+    <ul class="list" id="attendance-history"></ul>
+  </section>
+
+  <!-- Resident: Owner Details -->
+  <section id="screen-resident-owner" class="screen sub">
+    <header class="topbar"><button class="btn-back" data-back>‹</button><h2>Owner Details</h2></header>
+    <div class="card owner-card">
+      <div class="avatar">🧑‍💼</div>
+      <div>
+        <strong id="ro-owner-name">—</strong>
+        <p class="subtle" id="ro-pg-name">—</p>
+      </div>
+    </div>
+    <ul class="detail-list">
+      <li><span>Phone</span><b id="ro-phone">—</b></li>
+      <li><span>Location</span><b id="ro-location">—</b></li>
+      <li><span>Office hours</span><b>9:00 AM – 8:00 PM</b></li>
+    </ul>
+  </section>
+
+  <!-- Resident: Complaints -->
+  <section id="screen-resident-complaints" class="screen sub">
+    <header class="topbar"><button class="btn-back" data-back>‹</button><h2>Complaints</h2></header>
+    <form id="form-complaint" class="card">
+      <label class="field">
+        <span>Category</span>
+        <select name="category" required>
+          <option value="">Select a category</option>
+          <option>Electrical</option>
+          <option>Plumbing / Water</option>
+          <option>Wi-Fi / Internet</option>
+          <option>Housekeeping</option>
+          <option>Food / Mess</option>
+          <option>Security</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Description</span>
+        <textarea name="description" rows="3" placeholder="Describe the issue" required></textarea>
+      </label>
+      <button type="submit" class="btn btn-primary btn-wide">Submit complaint</button>
+    </form>
+    <h3 class="section-title">Your complaints</h3>
+    <ul class="list" id="resident-complaint-list"></ul>
+  </section>
+
+  <!-- Resident: Room Booking -->
+  <section id="screen-resident-booking" class="screen sub">
+    <header class="topbar"><button class="btn-back" data-back>‹</button><h2>Room Booking</h2></header>
+    <div class="card">
+      <ul class="detail-list">
+        <li><span>Room</span><b id="rb-room">Room 204</b></li>
+        <li><span>Sharing type</span><b id="rb-sharing">Double sharing</b></li>
+        <li><span>Move-in date</span><b id="rb-movein">—</b></li>
+        <li><span>Status</span><b><span class="pill pill-success">Confirmed</span></b></li>
+      </ul>
+    </div>
+    <p class="subtle center">Need a different room? Raise it as a complaint or contact the owner directly.</p>
+  </section>
+
+  <!-- ======================= OWNER DASHBOARD ======================= -->
+  <section id="screen-owner-home" class="screen">
+    <header class="dash-header">
+      <div>
+        <p class="greet">Welcome back,</p>
+        <h2 id="owner-name-label">Owner</h2>
+      </div>
+      <button class="icon-btn" id="btn-owner-logout" title="Log out">⏻</button>
+    </header>
+
+    <div class="status-strip" id="owner-status-strip"></div>
+
+    <div class="grid-4 grid-7">
+      <button class="dash-card" data-goto="owner-residents"><span class="dash-icon">🧑‍🤝‍🧑</span><span>Residents</span></button>
+      <button class="dash-card" data-goto="owner-rent"><span class="dash-icon">💳</span><span>Rent Details</span></button>
+      <button class="dash-card" data-goto="owner-attendance"><span class="dash-icon">🗓️</span><span>Attendance</span></button>
+      <button class="dash-card" data-goto="owner-rooms"><span class="dash-icon">🛏️</span><span>Rooms</span></button>
+      <button class="dash-card" data-goto="owner-complaints"><span class="dash-icon">📢</span><span>Complaints</span></button>
+      <button class="dash-card" data-goto="owner-documents"><span class="dash-icon">🪪</span><span>Documents</span></button>
+      <button class="dash-card" data-goto="owner-visitors"><span class="dash-icon">🚶</span><span>Visitors</span></button>
+    </div>
+  </section>
+
+  <!-- Owner: Residents -->
+  <section id="screen-owner-residents" class="screen sub">
+    <header class="topbar"><button class="btn-back" data-back>‹</button><h2>Residents</h2></header>
+    <ul class="list" id="owner-resident-list"></ul>
+  </section>
+
+  <!-- Owner: Rent Details -->
+  <section id="screen-owner-rent" class="screen sub">
+    <header class="topbar"><button class="btn-back" data-back>‹</button><h2>Rent Details</h2></header>
+    <ul class="list" id="owner-rent-list"></ul>
+  </section>
+
+  <!-- Owner: Attendance -->
+  <section id="screen-owner-attendance" class="screen sub">
+    <header class="topbar"><button class="btn-back" data-back>‹</button><h2>Attendance</h2></header>
+    <ul class="list" id="owner-attendance-list"></ul>
+  </section>
+
+  <!-- Owner: Rooms -->
+  <section id="screen-owner-rooms" class="screen sub">
+    <header class="topbar"><button class="btn-back" data-back>‹</button><h2>Rooms &amp; Booking</h2></header>
+    <h3 class="section-title">Room occupancy</h3>
+    <ul class="list" id="owner-room-list"></ul>
+    <h3 class="section-title">Pending booking requests</h3>
+    <ul class="list" id="owner-booking-requests"></ul>
+  </section>
+
+  <!-- Owner: Complaints -->
+  <section id="screen-owner-complaints" class="screen sub">
+    <header class="topbar"><button class="btn-back" data-back>‹</button><h2>Complaints</h2></header>
+    <ul class="list" id="owner-complaint-list"></ul>
+  </section>
+
+  <!-- Owner: Documents -->
+  <section id="screen-owner-documents" class="screen sub">
+    <header class="topbar"><button class="btn-back" data-back>‹</button><h2>Documents</h2></header>
+    <p class="subtle">Automated format &amp; checksum checks only — always confirm identity against the original card in person.</p>
+    <ul class="list" id="owner-document-list"></ul>
+  </section>
+
+  <!-- Owner: Visitors -->
+  <section id="screen-owner-visitors" class="screen sub">
+    <header class="topbar"><button class="btn-back" data-back>‹</button><h2>Visitors</h2></header>
+    <form id="form-visitor" class="card">
+      <label class="field">
+        <span>Visitor name</span>
+        <input type="text" name="visitorName" placeholder="Full name" required>
+      </label>
+      <label class="field">
+        <span>Visiting resident</span>
+        <input type="text" name="residentName" placeholder="Resident's name" required>
+      </label>
+      <label class="field">
+        <span>Purpose</span>
+        <input type="text" name="purpose" placeholder="e.g. Family visit, delivery" required>
+      </label>
+      <button type="submit" class="btn btn-primary btn-wide">Log visitor entry</button>
+    </form>
+    <h3 class="section-title">Today's visitor log</h3>
+    <ul class="list" id="owner-visitor-list"></ul>
+  </section>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
